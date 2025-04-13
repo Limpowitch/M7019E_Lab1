@@ -6,46 +6,95 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import com.example.m7019e_lab1.ui.theme.M7019E_Lab1Theme
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.m7019e_lab1.ui.MovieInformation
 import com.example.m7019e_lab1.ui.MovieList
+import com.example.m7019e_lab1.ui.Welcome
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 
 
 enum class MovieAppScreen(@StringRes val title: Int) {
     Welcome(title = R.string.app_name),
-    MovieList(title = R.string.movie_list)
+    MovieList(title = R.string.movie_list),
+    MovieInformation(title = R.string.movie_information),
+    MovieReviews(title = R.string.movie_reviews)
 }
 
-
+@OptIn(ExperimentalMaterial3Api::class) // Need this flag in order to use TopAppBar
 @Composable
-fun MovieAppBar() {
-
+fun MovieAppBar(
+    currentScreen: MovieAppScreen,
+    modifier: Modifier = Modifier,
+    customTitle: String? = null
+) {
+    TopAppBar(
+        title = { Text( customTitle ?: stringResource(currentScreen.title)) },
+        modifier = modifier,
+        colors = TopAppBarDefaults.topAppBarColors()
+    )
 }
 
 @Composable
 fun MovieAppNavigator(
     navController: NavHostController = rememberNavController()
 ) {
-    Scaffold (
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val route = backStackEntry?.destination?.route ?: MovieAppScreen.Welcome.name
+    val currentScreenName = route.substringBefore("/")
+    val currentScreen = MovieAppScreen.valueOf(currentScreenName)
 
+    Scaffold(
+        topBar = {
+            val customTitle = if (currentScreen == MovieAppScreen.MovieInformation) {
+                backStackEntry?.arguments?.getString("movieTitle")
+            } else null
+
+            MovieAppBar(
+                currentScreen = currentScreen,
+                customTitle = customTitle // Use the movie title when available
+            )
+        }
     ) { innerPadding ->
-
         NavHost(
             navController = navController,
             startDestination = MovieAppScreen.Welcome.name,
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(route = MovieAppScreen.Welcome.name) {
-
+                Welcome(navController)
             }
+
             composable(route = MovieAppScreen.MovieList.name) {
-                MovieList()
+                MovieList(navController)
+            }
+
+            composable(
+                route = "${MovieAppScreen.MovieInformation.name}/{movieTitle}",
+                arguments = listOf(navArgument("movieTitle") { type = NavType.StringType })
+            ) { backStackEntry ->
+                MovieInformation(
+                    navController,
+                    backStackEntry.arguments?.getString("movieTitle")
+                )
+            }
+
+            composable(route = MovieAppScreen.MovieReviews.name) {
+                // ... existing implementation (if any)
             }
         }
     }

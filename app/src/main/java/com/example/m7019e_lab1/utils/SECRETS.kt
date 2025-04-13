@@ -1,4 +1,5 @@
 package com.example.m7019e_lab1.utils
 
 object SECRETS {
+    const val API_KEY = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxOGQ5ZjE2OGJjMmVlYWFkZmM0ODExOWI1OTZjZDY0OCIsIm5iZiI6MTc0Mjg5Njk0NC40NjcsInN1YiI6IjY3ZTI3ZjMwMTZhM2M1YzIyNGYwNTllMyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.nYJamfbjv8PIMCt5OMMYXc7YoDX1myPBSyfEe9UTBLo"
 }
