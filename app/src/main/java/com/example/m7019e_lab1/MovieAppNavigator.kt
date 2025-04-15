@@ -12,9 +12,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.m7019e_lab1.ui.theme.M7019E_Lab1Theme
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -26,6 +28,7 @@ import com.example.m7019e_lab1.ui.MovieList
 import com.example.m7019e_lab1.ui.Welcome
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.example.m7019e_lab1.viewmodel.MoviesViewModel
 
 
 enum class MovieAppScreen(@StringRes val title: Int) {
@@ -51,7 +54,8 @@ fun MovieAppBar(
 
 @Composable
 fun MovieAppNavigator(
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    moviesViewModel: MoviesViewModel = viewModel()
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val route = backStackEntry?.destination?.route ?: MovieAppScreen.Welcome.name
@@ -60,13 +64,15 @@ fun MovieAppNavigator(
 
     Scaffold(
         topBar = {
-            val customTitle = if (currentScreen == MovieAppScreen.MovieInformation) {
-                backStackEntry?.arguments?.getString("movieTitle")
+            val customTitle: String? = if (currentScreen == MovieAppScreen.MovieInformation) {
+                val movieId = backStackEntry?.arguments?.getString("movieId")
+                val moviesState by moviesViewModel.movies.collectAsState()
+                moviesState.find { it.id.toString() == movieId }?.title
             } else null
 
             MovieAppBar(
                 currentScreen = currentScreen,
-                customTitle = customTitle // Use the movie title when available
+                customTitle = customTitle
             )
         }
     ) { innerPadding ->
@@ -84,12 +90,13 @@ fun MovieAppNavigator(
             }
 
             composable(
-                route = "${MovieAppScreen.MovieInformation.name}/{movieTitle}",
-                arguments = listOf(navArgument("movieTitle") { type = NavType.StringType })
+                route = "${MovieAppScreen.MovieInformation.name}/{movieId}",
+                arguments = listOf(
+                    navArgument("movieId") { type = NavType.StringType })
             ) { backStackEntry ->
                 MovieInformation(
                     navController,
-                    backStackEntry.arguments?.getString("movieTitle")
+                    backStackEntry.arguments?.getString("movieId")
                 )
             }
 

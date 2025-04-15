@@ -19,20 +19,25 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.m7019e_lab1.MovieAppScreen
 import com.example.m7019e_lab1.utils.Constants
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.m7019e_lab1.viewmodel.MoviesViewModel
+import androidx.compose.runtime.getValue
 
 @Composable
 fun MovieList(navController: NavHostController, modifier: Modifier = Modifier) {
-    val movieList = Movies().getMovies()
+    val viewModel: MoviesViewModel = viewModel()
+    val moviesState by viewModel.movies.collectAsState()
 
     LazyColumn(modifier = modifier) {
-        items(movieList) { movie ->
-            MovieItemCard(navController, movie, modifier = Modifier.padding(8.dp))
+        items(moviesState) { movie ->
+            MovieItemCard(navController, movie = movie, modifier = Modifier.padding(8.dp))
         }
     }
 }
@@ -42,7 +47,7 @@ fun MovieItemCard(navController: NavHostController, movie: Movie, modifier: Modi
     Card(modifier = modifier) {
         Row(
             modifier = Modifier.clickable {
-                navController.navigate("${MovieAppScreen.MovieInformation.name}/${movie.title}")
+                navController.navigate("${MovieAppScreen.MovieInformation.name}/${movie.id}")
             }
         ) {
             Box {
