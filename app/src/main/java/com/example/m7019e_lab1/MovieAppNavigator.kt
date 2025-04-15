@@ -29,6 +29,12 @@ import com.example.m7019e_lab1.ui.Welcome
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.example.m7019e_lab1.viewmodel.MoviesViewModel
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.graphics.Color
 
 
 enum class MovieAppScreen(@StringRes val title: Int) {
@@ -38,17 +44,33 @@ enum class MovieAppScreen(@StringRes val title: Int) {
     MovieReviews(title = R.string.movie_reviews)
 }
 
-@OptIn(ExperimentalMaterial3Api::class) // Need this flag in order to use TopAppBar
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MovieAppBar(
     currentScreen: MovieAppScreen,
+    canNavigateBack: Boolean,
+    navigateUp: () -> Unit = {},
     modifier: Modifier = Modifier,
     customTitle: String? = null
 ) {
     TopAppBar(
-        title = { Text( customTitle ?: stringResource(currentScreen.title)) },
+        title = { Text(text = customTitle ?: stringResource(id = currentScreen.title)) },
         modifier = modifier,
-        colors = TopAppBarDefaults.topAppBarColors()
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            titleContentColor = MaterialTheme.colorScheme.onPrimary
+        ),
+        navigationIcon = {
+            if (canNavigateBack) {
+                IconButton(onClick = navigateUp) {
+                    Icon(
+                        imageVector = Icons.Filled.ArrowBack,
+                        contentDescription = stringResource(id = R.string.back_button),
+                        tint = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
+            }
+        }
     )
 }
 
@@ -72,7 +94,9 @@ fun MovieAppNavigator(
 
             MovieAppBar(
                 currentScreen = currentScreen,
-                customTitle = customTitle
+                canNavigateBack = currentScreen != MovieAppScreen.Welcome, // or other logic
+                navigateUp = { navController.navigateUp() },
+                customTitle = customTitle // if null, the default title is used
             )
         }
     ) { innerPadding ->

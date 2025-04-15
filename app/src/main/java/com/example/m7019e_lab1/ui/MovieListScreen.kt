@@ -46,7 +46,7 @@ fun MovieList(navController: NavHostController, modifier: Modifier = Modifier) {
 fun MovieItemCard(navController: NavHostController, movie: Movie, modifier: Modifier = Modifier) {
     Card(modifier = modifier) {
         Row(
-            modifier = Modifier.clickable {
+            modifier = Modifier.padding(8.dp).clickable {
                 navController.navigate("${MovieAppScreen.MovieInformation.name}/${movie.id}")
             }
         ) {
@@ -64,6 +64,11 @@ fun MovieItemCard(navController: NavHostController, movie: Movie, modifier: Modi
                 Text(
                     text = movie.title,
                     style = MaterialTheme.typography.headlineSmall
+                )
+                Spacer(modifier = Modifier.size(8.dp))
+                Text(
+                    text = movie.genre,
+                    style = MaterialTheme.typography.bodyLarge
                 )
                 Spacer(modifier = Modifier.size(8.dp))
                 Text(

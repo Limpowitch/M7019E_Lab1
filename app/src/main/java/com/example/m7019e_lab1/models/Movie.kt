@@ -6,5 +6,9 @@ data class Movie(
     var posterPath: String,
     var backdropPath: String,
     var releaseDate: String,
-    var overview: String
+    var overview: String,
+    var genre: String,
+    var imdb_id: String,
+    var movie_homepage_url: String,
+
 )
