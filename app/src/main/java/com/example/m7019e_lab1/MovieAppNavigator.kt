@@ -94,9 +94,9 @@ fun MovieAppNavigator(
 
             MovieAppBar(
                 currentScreen = currentScreen,
-                canNavigateBack = currentScreen != MovieAppScreen.Welcome, // or other logic
+                canNavigateBack = currentScreen != MovieAppScreen.Welcome,
                 navigateUp = { navController.navigateUp() },
-                customTitle = customTitle // if null, the default title is used
+                customTitle = customTitle
             )
         }
     ) { innerPadding ->

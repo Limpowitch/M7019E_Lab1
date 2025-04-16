@@ -10,10 +10,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.m7019e_lab1.database.Movies
 import com.example.m7019e_lab1.models.Movie
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
@@ -66,10 +66,14 @@ fun MovieItemCard(navController: NavHostController, movie: Movie, modifier: Modi
                     style = MaterialTheme.typography.headlineSmall
                 )
                 Spacer(modifier = Modifier.size(8.dp))
+
+                val firstGenre = movie?.genre?.firstOrNull() ?: "No genre available"
                 Text(
-                    text = movie.genre,
-                    style = MaterialTheme.typography.bodyLarge
+                    text = firstGenre,
+                    style = MaterialTheme.typography.bodyMedium,
                 )
+
+
                 Spacer(modifier = Modifier.size(8.dp))
                 Text(
                     text = movie.releaseDate,
