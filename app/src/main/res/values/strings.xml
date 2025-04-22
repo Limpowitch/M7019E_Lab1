@@ -4,4 +4,5 @@
     <string name="movie_information">PLACEHOLDER, SHOULD HAVE MOVIE NAME</string>
     <string name="movie_reviews">PLACEHOLDER, SHOULD HAVE MOVIE NAME</string>
     <string name="back_button">Back</string>
+    <string name="movie_grid">Movie Grid</string>
 </resources>

@@ -25,6 +25,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,8 +44,11 @@ import com.example.m7019e_lab1.viewmodel.MoviesViewModel
 fun MovieInformation(navController: NavHostController, movieId: String?, modifier: Modifier = Modifier) {
     val id = movieId?.toLongOrNull()
     val moviesViewModel: MoviesViewModel = viewModel()
-    val movie = remember(id) {id?.let {moviesViewModel.getMovie(it)}}
+    val moviesState = moviesViewModel.movies.collectAsState(initial = emptyList())
+    val movies = moviesState.value
     val context = LocalContext.current
+
+    val movie = id?.let { lookup -> movies.find { it.id == lookup } }
 
     Box(
         modifier = Modifier

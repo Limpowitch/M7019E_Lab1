@@ -1,3 +1,5 @@
+//Domain level data model
+
 package com.example.m7019e_lab1.models
 
 data class Movie(
@@ -7,7 +9,7 @@ data class Movie(
     var backdropPath: String,
     var releaseDate: String,
     var overview: String,
-    var genre: List<String> = emptyList(),
+    var genre: List<String>,
     var imdb_id: String,
     var movie_homepage_url: String,
 

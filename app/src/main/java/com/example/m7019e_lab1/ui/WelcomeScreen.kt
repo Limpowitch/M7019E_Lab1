@@ -21,7 +21,7 @@ fun Welcome(navController: NavHostController) {
     ) {
         Button(
             onClick = {
-                navController.navigate(MovieAppScreen.MovieList.name)
+                navController.navigate(MovieAppScreen.MovieGrid.name)
             },
             modifier = Modifier.size(width = 200.dp, height = 60.dp)
         ) {

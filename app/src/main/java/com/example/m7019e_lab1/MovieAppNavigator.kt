@@ -35,13 +35,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
+import com.example.m7019e_lab1.ui.MovieGrid
 
 
 enum class MovieAppScreen(@StringRes val title: Int) {
     Welcome(title = R.string.app_name),
     MovieList(title = R.string.movie_list),
     MovieInformation(title = R.string.movie_information),
-    MovieReviews(title = R.string.movie_reviews)
+    MovieReviews(title = R.string.movie_reviews),
+    MovieGrid(title = R.string.movie_grid)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -84,14 +86,26 @@ fun MovieAppNavigator(
     val currentScreenName = route.substringBefore("/")
     val currentScreen = MovieAppScreen.valueOf(currentScreenName)
 
+    // 2) Collect the movies list once, at the top level
+    val movies by moviesViewModel
+        .movies
+        .collectAsState(initial = emptyList())
+
+    // 3) Pull the raw movieId string from nav args
+    val movieId: String? = backStackEntry
+        ?.arguments
+        ?.getLong("movieId")
+        ?.toString()
+
+    // 4) Compute the custom title whenever `movies` or `movieId` changes
+    val customTitle: String? = if (currentScreen == MovieAppScreen.MovieInformation) {
+        movies
+            .find { it.id.toString() == movieId }
+            ?.title
+    } else null
+
     Scaffold(
         topBar = {
-            val customTitle: String? = if (currentScreen == MovieAppScreen.MovieInformation) {
-                val movieId = backStackEntry?.arguments?.getString("movieId")
-                val moviesState by moviesViewModel.movies.collectAsState()
-                moviesState.find { it.id.toString() == movieId }?.title
-            } else null
-
             MovieAppBar(
                 currentScreen = currentScreen,
                 canNavigateBack = currentScreen != MovieAppScreen.Welcome,
@@ -109,18 +123,18 @@ fun MovieAppNavigator(
                 Welcome(navController)
             }
 
-            composable(route = MovieAppScreen.MovieList.name) {
-                MovieList(navController)
+            composable(route = MovieAppScreen.MovieGrid.name) {
+                MovieGrid(navController)
             }
 
             composable(
                 route = "${MovieAppScreen.MovieInformation.name}/{movieId}",
                 arguments = listOf(
-                    navArgument("movieId") { type = NavType.StringType })
+                    navArgument("movieId") { type = NavType.LongType })
             ) { backStackEntry ->
                 MovieInformation(
                     navController,
-                    backStackEntry.arguments?.getString("movieId")
+                    movieId = backStackEntry.arguments?.getLong("movieId")?.toString()
                 )
             }
 
