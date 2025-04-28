@@ -36,11 +36,15 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.m7019e_lab1.viewmodel.MoviesViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import com.example.m7019e_lab1.models.MovieGridItem
 
 @Composable
-fun MovieGrid(navController: NavHostController, modifier: Modifier = Modifier) {
-    val viewModel: MoviesViewModel = viewModel()
-    val moviesState by viewModel.movies.collectAsState()
+fun MovieGrid(
+    navController: NavHostController,
+    moviesViewModel: MoviesViewModel,
+    modifier: Modifier = Modifier
+) {
+    val items by moviesViewModel.gridItems.collectAsState(initial = emptyList())
 
     LazyVerticalGrid (
         columns = GridCells.Adaptive(minSize = 128.dp),
@@ -48,10 +52,10 @@ fun MovieGrid(navController: NavHostController, modifier: Modifier = Modifier) {
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        items(moviesState) { movie ->
+        items(items) { gridItem ->
             MovieGridItemCard(
                 navController,
-                movie = movie,
+                movie = gridItem,
                 modifier = Modifier.height(220.dp).fillMaxWidth()
             )
         }
@@ -61,7 +65,7 @@ fun MovieGrid(navController: NavHostController, modifier: Modifier = Modifier) {
 @Composable
 fun MovieGridItemCard(
     navController: NavHostController,
-    movie: Movie,
+    movie: MovieGridItem,
     modifier: Modifier = Modifier
 ) {
 

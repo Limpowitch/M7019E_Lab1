@@ -5,26 +5,39 @@ import androidx.lifecycle.viewModelScope
 import com.example.m7019e_lab1.data.remote.client.RetrofitClient
 import com.example.m7019e_lab1.data.repository.MoviesRepository
 import com.example.m7019e_lab1.data.repository.MoviesRepositoryImpl
-import com.example.m7019e_lab1.database.Movies
 import com.example.m7019e_lab1.models.Movie
+import com.example.m7019e_lab1.models.MovieGridItem
+import com.example.m7019e_lab1.models.Review
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 
-class MoviesViewModel : ViewModel() {
-    // build your repo here
-    private val repository = MoviesRepositoryImpl(RetrofitClient.apiService)
+class MoviesViewModel(
+    private val repo: MoviesRepository = MoviesRepositoryImpl(RetrofitClient.apiService)
+) : ViewModel() {
+    private val _gridItems = MutableStateFlow<List<MovieGridItem>>(emptyList())
+    val gridItems: StateFlow<List<MovieGridItem>> = _gridItems
 
-    private val _movies = MutableStateFlow<List<Movie>>(emptyList())
-    val movies: StateFlow<List<Movie>> = _movies
+    private val _selectedMovie = MutableStateFlow<Movie?>(null)
+    val selectedMovie: StateFlow<Movie?> = _selectedMovie
+
+    private val _reviews = MutableStateFlow<List<Review>>(emptyList())
+    val reviews: StateFlow<List<Review>> = _reviews
+
+
 
     init {
         viewModelScope.launch {
-            _movies.value = repository.fetchTopRatedMovies()
+            _gridItems.value = repo.fetchTopRatedMovies()
         }
     }
 
-    fun getMovie(id: Long): Movie? =
-        _movies.value.find { it.id == id }
+    // UNCOMMENT & IMPLEMENT:
+    fun loadMovieDetails(id: Long) {
+        viewModelScope.launch {
+            _selectedMovie.value = repo.fetchMovieDetails(id)
+            _reviews.value       = repo.fetchMovieReviews(id)
+        }
+    }
 }

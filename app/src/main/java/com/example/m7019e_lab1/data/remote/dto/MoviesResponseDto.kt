@@ -6,7 +6,7 @@ import com.squareup.moshi.Json
 
 data class MoviesResponseDto (
     val page: Int,
-    val results: List<MovieDto>,
+    val results: List<MovieGridItemDto>,
     @Json(name="total_pages") val totalPages: Int,
     @Json(name="total_results") val totalResults: Int
 )

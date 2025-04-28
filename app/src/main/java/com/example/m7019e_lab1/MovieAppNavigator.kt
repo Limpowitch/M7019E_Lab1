@@ -24,7 +24,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.m7019e_lab1.ui.MovieInformation
-import com.example.m7019e_lab1.ui.MovieList
 import com.example.m7019e_lab1.ui.Welcome
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
@@ -87,8 +86,8 @@ fun MovieAppNavigator(
     val currentScreen = MovieAppScreen.valueOf(currentScreenName)
 
     // 2) Collect the movies list once, at the top level
-    val movies by moviesViewModel
-        .movies
+    val gridItems by moviesViewModel
+        .gridItems
         .collectAsState(initial = emptyList())
 
     // 3) Pull the raw movieId string from nav args
@@ -98,11 +97,10 @@ fun MovieAppNavigator(
         ?.toString()
 
     // 4) Compute the custom title whenever `movies` or `movieId` changes
-    val customTitle: String? = if (currentScreen == MovieAppScreen.MovieInformation) {
-        movies
-            .find { it.id.toString() == movieId }
-            ?.title
-    } else null
+    val customTitle: String? =
+        if (currentScreen == MovieAppScreen.MovieInformation)
+            gridItems.find { it.id.toString() == movieId }?.title
+        else null
 
     Scaffold(
         topBar = {
@@ -124,19 +122,19 @@ fun MovieAppNavigator(
             }
 
             composable(route = MovieAppScreen.MovieGrid.name) {
-                MovieGrid(navController)
+                MovieGrid(navController = navController, moviesViewModel = moviesViewModel)
             }
 
-            composable(
-                route = "${MovieAppScreen.MovieInformation.name}/{movieId}",
-                arguments = listOf(
-                    navArgument("movieId") { type = NavType.LongType })
-            ) { backStackEntry ->
-                MovieInformation(
-                    navController,
-                    movieId = backStackEntry.arguments?.getLong("movieId")?.toString()
-                )
-            }
+                composable(
+                        route = "${MovieAppScreen.MovieInformation.name}/{movieId}",
+                        arguments = listOf(navArgument("movieId") { type = NavType.LongType })
+                            ) { backStackEntry ->
+                        MovieInformation(
+                                navController       = navController,
+                                movieId             = backStackEntry.arguments?.getLong("movieId")?.toString(),
+                                moviesViewModel     = moviesViewModel  // ← same VM
+                                    )
+                    }
 
             composable(route = MovieAppScreen.MovieReviews.name) {
                 // ... existing implementation (if any)
