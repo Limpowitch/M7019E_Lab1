@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -41,20 +42,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import com.example.m7019e_lab1.MovieAppScreen
 import com.example.m7019e_lab1.utils.Constants
 import com.example.m7019e_lab1.viewmodel.MoviesViewModel
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.media3.common.MediaItem
-import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.ui.PlayerView
+
 
 @Composable
 fun MovieInformation(
@@ -69,43 +63,70 @@ fun MovieInformation(
         moviesViewModel.loadMovieDetails(id)
     }
 
-    // collect the detail state
     val movie by moviesViewModel
         .selectedMovie
         .collectAsState(initial = null)
 
     val reviews by moviesViewModel.reviews.collectAsState(initial = emptyList())
 
+    val videos by moviesViewModel.videos.collectAsState(initial = emptyList())
 
     val context = LocalContext.current
 
     movie?.let { m ->
-        Box(modifier = modifier.fillMaxSize()) {
-            Column(modifier = Modifier.padding(8.dp)) {
-                Spacer(Modifier.height(16.dp))
-
+        LazyColumn(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(8.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(vertical = 16.dp)
+        ) {
+            item {
                 Text(
                     text = m.title,
                     style = MaterialTheme.typography.headlineMedium
                 )
+            }
 
-                Spacer(Modifier.height(8.dp))
+            if (videos.isNotEmpty()) {
+                item {
+                    Text("Videos", style = MaterialTheme.typography.titleMedium)
+                    Spacer(Modifier.height(8.dp))
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        contentPadding = PaddingValues(horizontal = 8.dp)
+                    ) {
+                        items(
+                            items = videos,
+                            key    = { it.id }
+                        ) { video ->
+                            Card(modifier = Modifier.width(300.dp)) {
+                                YouTubePlayerView(
+                                    videoId  = video.key,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(200.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
 
+            item {
                 Text(
                     text = m.releaseDate,
                     style = MaterialTheme.typography.bodySmall
                 )
-
                 Spacer(Modifier.height(8.dp))
-
                 Divider(
                     modifier = Modifier.fillMaxWidth(),
                     thickness = 1.dp,
                     color = MaterialTheme.colorScheme.outline
                 )
+            }
 
-                Spacer(Modifier.height(8.dp))
-
+            item {
                 Row {
                     AsyncImage(
                         model = Constants.POSTER_IMAGE_BASE_URL +
@@ -117,19 +138,16 @@ fun MovieInformation(
                             .height(215.dp),
                         contentScale = ContentScale.Crop
                     )
-
                     Spacer(Modifier.width(8.dp))
-
                     Text(
                         text = m.overview,
                         maxLines = 6,
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
+            }
 
-                Spacer(Modifier.height(16.dp))
-
-                // genres chips
+            item {
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
@@ -147,10 +165,9 @@ fun MovieInformation(
                         )
                     }
                 }
+            }
 
-                Spacer(Modifier.height(24.dp))
-
-                // buttons
+            item {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -166,7 +183,6 @@ fun MovieInformation(
                     ) {
                         Text("Homepage")
                     }
-
                     Button(
                         onClick = {
                             val imdbUrl = "https://www.imdb.com/title/${m.imdbId}"
@@ -188,9 +204,10 @@ fun MovieInformation(
                         Text("Open IMDb")
                     }
                 }
+            }
 
-                if (reviews.isNotEmpty()) {
-                    Spacer(Modifier.height(24.dp))
+            if (reviews.isNotEmpty()) {
+                item {
                     Text("Reviews", style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.height(8.dp))
                     LazyRow(

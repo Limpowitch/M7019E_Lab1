@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.coil.compose)
     implementation(libs.androidx.navigation.compose)
+    implementation ("com.pierfrancescosoffritti.androidyoutubeplayer:core:11.1.0")
     implementation ("com.github.teamnewpipe:NewPipeExtractor:0.24.4")
     implementation ("androidx.media3:media3-exoplayer-hls:1.2.0")
     implementation("androidx.media3:media3-exoplayer:1.2.0")

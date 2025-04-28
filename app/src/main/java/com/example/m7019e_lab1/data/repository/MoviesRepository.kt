@@ -5,6 +5,7 @@ package com.example.m7019e_lab1.data.repository
 import com.example.m7019e_lab1.models.Movie
 import com.example.m7019e_lab1.models.MovieGridItem
 import com.example.m7019e_lab1.models.Review
+import com.example.m7019e_lab1.models.Video
 
 // data/repository/MoviesRepository.kt
 interface MoviesRepository {
@@ -13,4 +14,6 @@ interface MoviesRepository {
     suspend fun fetchMovieDetails(id: Long): Movie
 
     suspend fun fetchMovieReviews(id: Long): List<Review>
+
+    suspend fun fetchMovieVideos(id: Long): List<Video>
 }

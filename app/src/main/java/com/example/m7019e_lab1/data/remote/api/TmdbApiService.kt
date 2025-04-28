@@ -7,6 +7,7 @@ package com.example.m7019e_lab1.data.remote.api
 import com.example.m7019e_lab1.data.remote.dto.MovieDetailsDto
 import com.example.m7019e_lab1.data.remote.dto.MoviesResponseDto
 import com.example.m7019e_lab1.data.remote.dto.ReviewsResponseDto
+import com.example.m7019e_lab1.data.remote.dto.VideosResponseDto
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -30,6 +31,12 @@ interface TmdbApiService {
         @Query("language") language: String = "en-US",
         @Query("page") page: Int = 1
     ): ReviewsResponseDto
+
+    @GET("movie/{id}/videos")
+    suspend fun getMovieVideos(
+        @Path("id") id: Long,
+        @Query("language") language: String = "en-US"
+    ): VideosResponseDto
 }
 
 

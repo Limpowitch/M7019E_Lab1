@@ -6,10 +6,12 @@ package com.example.m7019e_lab1.data.repository
 import com.example.m7019e_lab1.data.remote.api.TmdbApiService
 import com.example.m7019e_lab1.data.remote.dto.MovieGridItemDto
 import com.example.m7019e_lab1.data.remote.dto.ReviewDto
+import com.example.m7019e_lab1.data.remote.dto.VideoDto
 import com.example.m7019e_lab1.data.remote.mapper.toDomain
 import com.example.m7019e_lab1.models.MovieGridItem
 import com.example.m7019e_lab1.models.Movie
 import com.example.m7019e_lab1.models.Review
+import com.example.m7019e_lab1.models.Video
 
 class MoviesRepositoryImpl(
     private val api: TmdbApiService
@@ -29,4 +31,10 @@ class MoviesRepositoryImpl(
             .results
             .map(ReviewDto::toDomain)
 
+    override suspend fun fetchMovieVideos(id: Long): List<Video> =
+        api.getMovieVideos(id)
+            .results
+            .filter { it.site == "YouTube" }          // only YouTube
+            .map(VideoDto::toDomain)
+            .take(3)
 }
