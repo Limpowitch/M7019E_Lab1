@@ -19,7 +19,7 @@ interface TmdbApiService {
         @Query("page")     page: Int     = 1
     ): MoviesResponseDto
 
-    @GET("movie/{id}")            // ← new detail endpoint
+    @GET("movie/{id}")
     suspend fun getMovieDetails(
         @Path("id") id: Long,
         @Query("language") language: String = "en-US"

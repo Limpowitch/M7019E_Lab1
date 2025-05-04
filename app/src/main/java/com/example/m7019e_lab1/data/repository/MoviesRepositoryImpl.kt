@@ -8,19 +8,31 @@ import com.example.m7019e_lab1.data.remote.dto.MovieGridItemDto
 import com.example.m7019e_lab1.data.remote.dto.ReviewDto
 import com.example.m7019e_lab1.data.remote.dto.VideoDto
 import com.example.m7019e_lab1.data.remote.mapper.toDomain
-import com.example.m7019e_lab1.models.MovieGridItem
 import com.example.m7019e_lab1.models.Movie
 import com.example.m7019e_lab1.models.Review
 import com.example.m7019e_lab1.models.Video
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 
 class MoviesRepositoryImpl(
     private val api: TmdbApiService
 ) : MoviesRepository {
 
-    override suspend fun fetchTopRatedMovies(): List<MovieGridItem> =
-        api.getTopRatedMovies()
-            .results
-            .map(MovieGridItemDto::toDomain)
+    override suspend fun fetchTopRatedMovies(): List<Movie> {
+        val gridDtos = api.getTopRatedMovies().results
+
+        return coroutineScope {
+            gridDtos
+                .map { dto ->
+                    async {
+                        api.getMovieDetails(dto.id)
+                            .toDomain()
+                    }
+                }
+                .awaitAll()
+        }
+    }
 
     override suspend fun fetchMovieDetails(id: Long): Movie =
         api.getMovieDetails(id)
@@ -34,7 +46,7 @@ class MoviesRepositoryImpl(
     override suspend fun fetchMovieVideos(id: Long): List<Video> =
         api.getMovieVideos(id)
             .results
-            .filter { it.site == "YouTube" }          // only YouTube
+            .filter { it.site == "YouTube" }
             .map(VideoDto::toDomain)
             .take(3)
 }

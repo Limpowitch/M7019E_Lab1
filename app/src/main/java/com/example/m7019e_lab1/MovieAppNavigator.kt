@@ -1,5 +1,6 @@
 package com.example.m7019e_lab1
 
+import android.app.Application
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -34,6 +35,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.ViewModelProvider
 import com.example.m7019e_lab1.ui.MovieGrid
 
 
@@ -78,8 +81,14 @@ fun MovieAppBar(
 @Composable
 fun MovieAppNavigator(
     navController: NavHostController = rememberNavController(),
-    moviesViewModel: MoviesViewModel = viewModel()
 ) {
+    val context = LocalContext.current
+    val application = context.applicationContext as Application
+
+    val moviesViewModel: MoviesViewModel = viewModel(
+        factory = ViewModelProvider.AndroidViewModelFactory.getInstance(application)
+    )
+
     val backStackEntry by navController.currentBackStackEntryAsState()
     val route = backStackEntry?.destination?.route ?: MovieAppScreen.Welcome.name
     val currentScreenName = route.substringBefore("/")
@@ -99,7 +108,7 @@ fun MovieAppNavigator(
     // 4) Compute the custom title whenever `movies` or `movieId` changes
     val customTitle: String? =
         if (currentScreen == MovieAppScreen.MovieInformation)
-            gridItems.find { it.id.toString() == movieId }?.title
+            gridItems.find { it?.id.toString() == movieId }?.title
         else null
 
     Scaffold(
@@ -132,12 +141,11 @@ fun MovieAppNavigator(
                         MovieInformation(
                                 navController       = navController,
                                 movieId             = backStackEntry.arguments?.getLong("movieId")?.toString(),
-                                moviesViewModel     = moviesViewModel  // ← same VM
+                                moviesViewModel     = moviesViewModel
                                     )
                     }
 
             composable(route = MovieAppScreen.MovieReviews.name) {
-                // ... existing implementation (if any)
             }
         }
     }
