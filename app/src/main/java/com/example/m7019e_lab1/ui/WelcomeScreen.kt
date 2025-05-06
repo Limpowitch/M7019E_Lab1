@@ -1,7 +1,10 @@
 package com.example.m7019e_lab1.ui
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,14 +22,28 @@ fun Welcome(navController: NavHostController) {
             .fillMaxSize(),
             contentAlignment = Alignment.Center
     ) {
-        Button(
-            onClick = {
-                navController.navigate(MovieAppScreen.MovieList.name)
-            },
-            modifier = Modifier.size(width = 200.dp, height = 60.dp)
-        ) {
-            Text(text = "Browse Movies")
+        Column {
+            Button(
+                onClick = {
+                    navController.navigate(MovieAppScreen.TopGrid.name)
+                },
+                modifier = Modifier.size(width = 200.dp, height = 60.dp)
+            ) {
+                Text(text = "Top rated")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = {
+                    navController.navigate(MovieAppScreen.PopularGrid.name)
+                },
+                modifier = Modifier.size(width = 200.dp, height = 60.dp)
+            ) {
+                Text(text = "Currently popular")
+            }
         }
+
     }
 
 }
