@@ -11,7 +11,9 @@ fun DomainMovie.toEntity() = Movie(
     overview     = overview,
     genres       = genres,
     imdbId       = imdbId,
-    homepageUrl  = homepageUrl
+    homepageUrl  = homepageUrl,
+    retrieveIndex = retrieveIndex,
+    category = category
 )
 
 fun Movie.toDomain() = DomainMovie(
@@ -23,5 +25,8 @@ fun Movie.toDomain() = DomainMovie(
     overview     = overview,
     genres       = genres,
     imdbId       = imdbId,
-    homepageUrl  = homepageUrl
+    homepageUrl  = homepageUrl,
+    retrieveIndex = retrieveIndex,
+    category = category
+
 )

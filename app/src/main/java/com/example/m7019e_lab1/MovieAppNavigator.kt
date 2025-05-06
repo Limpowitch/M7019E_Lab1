@@ -34,10 +34,18 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModelProvider
 import com.example.m7019e_lab1.ui.MovieGrid
+import com.example.m7019e_lab1.data.workers.FetchMoviesWorker
+import com.example.m7019e_lab1.models.Movie
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flowOf
 
 
 enum class MovieAppScreen(@StringRes val title: Int) {
@@ -45,7 +53,8 @@ enum class MovieAppScreen(@StringRes val title: Int) {
     MovieList(title = R.string.movie_list),
     MovieInformation(title = R.string.movie_information),
     MovieReviews(title = R.string.movie_reviews),
-    MovieGrid(title = R.string.movie_grid)
+    TopGrid(title = R.string.top_grid),
+    PopularGrid(title = R.string.popular_grid)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -94,22 +103,30 @@ fun MovieAppNavigator(
     val currentScreenName = route.substringBefore("/")
     val currentScreen = MovieAppScreen.valueOf(currentScreenName)
 
-    // 2) Collect the movies list once, at the top level
-    val gridItems by moviesViewModel
-        .gridItems
-        .collectAsState(initial = emptyList())
 
-    // 3) Pull the raw movieId string from nav args
-    val movieId: String? = backStackEntry
-        ?.arguments
-        ?.getLong("movieId")
-        ?.toString()
+    val category = when (currentScreen) {                                               // <-- Here
+        MovieAppScreen.TopGrid     -> FetchMoviesWorker.CAT_TOP
+        MovieAppScreen.PopularGrid -> FetchMoviesWorker.CAT_POPULAR
+        else                       -> null
+    }
 
-    // 4) Compute the custom title whenever `movies` or `movieId` changes
-    val customTitle: String? =
-        if (currentScreen == MovieAppScreen.MovieInformation)
-            gridItems.find { it?.id.toString() == movieId }?.title
-        else null
+    val emptyMoviesFlow = remember { MutableStateFlow<List<Movie>>(emptyList()) }
+
+    val moviesFlow: Flow<List<Movie>> = if (category != null) {
+        moviesViewModel.moviesByCategoryOrFetch(category)
+    } else {
+        emptyMoviesFlow
+    }                                                                                   // <-- To here
+                                                                                        // Makes sure that we retrieve the correct category of movies
+
+    val selectedMovie by moviesViewModel
+        .selectedMovie
+        .collectAsState(initial = null)
+
+    val customTitle: String? = when (currentScreen) {           // Just a custom title value we use in MovieInformationScreen
+        MovieAppScreen.MovieInformation -> selectedMovie?.title
+        else                            -> null
+    }
 
     Scaffold(
         topBar = {
@@ -130,22 +147,23 @@ fun MovieAppNavigator(
                 Welcome(navController)
             }
 
-            composable(route = MovieAppScreen.MovieGrid.name) {
-                MovieGrid(navController = navController, moviesViewModel = moviesViewModel)
+            composable(route = MovieAppScreen.TopGrid.name) {
+                MovieGrid(navController = navController,  category = FetchMoviesWorker.CAT_TOP, moviesFlow = moviesFlow as StateFlow<List<Movie>>)
             }
 
-                composable(
-                        route = "${MovieAppScreen.MovieInformation.name}/{movieId}",
-                        arguments = listOf(navArgument("movieId") { type = NavType.LongType })
-                            ) { backStackEntry ->
-                        MovieInformation(
-                                navController       = navController,
-                                movieId             = backStackEntry.arguments?.getLong("movieId")?.toString(),
-                                moviesViewModel     = moviesViewModel
-                                    )
-                    }
+            composable(route = MovieAppScreen.PopularGrid.name) {
+                MovieGrid(navController = navController,  category = FetchMoviesWorker.CAT_POPULAR, moviesFlow = moviesFlow as StateFlow<List<Movie>>)
+            }
 
-            composable(route = MovieAppScreen.MovieReviews.name) {
+            composable(
+                    route = "${MovieAppScreen.MovieInformation.name}/{movieId}",
+                    arguments = listOf(navArgument("movieId") { type = NavType.LongType })
+                        ) { backStackEntry ->
+                    MovieInformation(
+                            navController       = navController,
+                            movieId             = backStackEntry.arguments?.getLong("movieId")?.toString(),
+                            moviesViewModel     = moviesViewModel
+                                )
             }
         }
     }

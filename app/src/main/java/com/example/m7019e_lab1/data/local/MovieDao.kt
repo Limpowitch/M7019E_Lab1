@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface MovieDao {
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(movie: Movie)
 
     @Update
@@ -24,7 +24,22 @@ interface MovieDao {
     @Query("SELECT * from movies WHERE id = :id")
     fun getMovie(id: Int): Flow<Movie>
 
-    @Query("SELECT * from movies")
+    @Query("SELECT * from movies ORDER BY retrieveIndex ASC")
     fun getAllMovies(): Flow<List<Movie>>
+
+    @Query("DELETE FROM movies")
+    suspend fun deleteAllMovies()
+
+    @Query("SELECT * FROM movies WHERE category = :cat ORDER BY retrieveIndex ASC")
+    fun getMoviesForCategory(cat: String): Flow<List<Movie>>
+
+    @Query("DELETE FROM movies WHERE category = :cat")
+    suspend fun deleteMoviesForCategory(cat: String)
+
+    @Query("DELETE FROM movies WHERE category != :cat")
+    suspend fun deleteExceptCategory(cat: String)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(movies: List<Movie>)
 
 }

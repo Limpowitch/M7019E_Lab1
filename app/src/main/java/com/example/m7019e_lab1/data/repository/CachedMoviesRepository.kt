@@ -26,6 +26,20 @@ class CachedMoviesRepository(
         return@coroutineScope movies
     }
 
+    override suspend fun fetchPopularMovies(): List<Movie> = coroutineScope {
+        // 1) check the cache
+        val cached = local.getAllMoviesStream().first()
+        if (cached.isNotEmpty()) {
+            return@coroutineScope cached.map { it.toDomain() }
+        }
+
+        // 2) otherwise hit TMDB
+        val movies = remote.fetchPopularMovies() // now returns full List<Movie>
+        // 3) persist them
+        movies.forEach { local.insertMovie(it.toEntity()) }
+        return@coroutineScope movies
+    }
+
     // delegate everything else straight to the remote:
     override suspend fun fetchMovieDetails(id: Long)   = remote.fetchMovieDetails(id)
     override suspend fun fetchMovieReviews(id: Long)   = remote.fetchMovieReviews(id)

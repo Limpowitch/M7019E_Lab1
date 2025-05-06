@@ -9,6 +9,8 @@ import com.example.m7019e_lab1.models.Video
 interface MoviesRepository {
     suspend fun fetchTopRatedMovies(): List<Movie>
 
+    suspend fun fetchPopularMovies(): List<Movie>
+
     suspend fun fetchMovieDetails(id: Long): Movie
 
     suspend fun fetchMovieReviews(id: Long): List<Review>

@@ -14,5 +14,7 @@ data class Movie(
     val overview: String,
     val genres: List<String>,
     val imdbId: String,
-    val homepageUrl: String
+    val homepageUrl: String,
+    val retrieveIndex: Int,
+    val category: String
 )

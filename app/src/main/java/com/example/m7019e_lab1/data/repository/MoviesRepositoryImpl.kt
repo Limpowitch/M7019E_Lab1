@@ -8,6 +8,7 @@ import com.example.m7019e_lab1.data.remote.dto.MovieGridItemDto
 import com.example.m7019e_lab1.data.remote.dto.ReviewDto
 import com.example.m7019e_lab1.data.remote.dto.VideoDto
 import com.example.m7019e_lab1.data.remote.mapper.toDomain
+import com.example.m7019e_lab1.data.workers.FetchMoviesWorker
 import com.example.m7019e_lab1.models.Movie
 import com.example.m7019e_lab1.models.Review
 import com.example.m7019e_lab1.models.Video
@@ -24,10 +25,31 @@ class MoviesRepositoryImpl(
 
         return coroutineScope {
             gridDtos
-                .map { dto ->
+                .mapIndexed { index, dto ->
                     async {
+                        // fetch full details
                         api.getMovieDetails(dto.id)
-                            .toDomain()
+                            .toDomain(category = FetchMoviesWorker.CAT_TOP)
+                            // now tack on the index
+                            .copy(retrieveIndex = index)
+                    }
+                }
+                .awaitAll()
+        }
+    }
+
+    override suspend fun fetchPopularMovies(): List<Movie> {
+        val gridDtos = api.getPopularMovies().results
+
+        return coroutineScope {
+            gridDtos
+                .mapIndexed { index, dto ->
+                    async {
+                        // fetch full details
+                        api.getMovieDetails(dto.id)
+                            .toDomain(category = FetchMoviesWorker.CAT_POPULAR)
+                            // now tack on the index
+                            .copy(retrieveIndex = index)
                     }
                 }
                 .awaitAll()
@@ -37,6 +59,7 @@ class MoviesRepositoryImpl(
     override suspend fun fetchMovieDetails(id: Long): Movie =
         api.getMovieDetails(id)
             .toDomain()
+
 
     override suspend fun fetchMovieReviews(id: Long): List<Review> =
         api.getMovieReviews(id)
